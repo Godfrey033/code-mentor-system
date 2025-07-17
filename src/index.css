@@ -7,8 +7,9 @@ All colors MUST be HSL.
 */
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
+:root {
+    /* Educational System Color Palette */
+    --background: 210 40% 98%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -17,24 +18,53 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Smart Education Primary - Professional Blue */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 217 91% 70%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Educational Secondary - Warm Success Green */
+    --secondary: 142 71% 45%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Interactive Accent - Learning Orange */
+    --accent: 25 95% 55%;
+    --accent-foreground: 0 0% 100%;
 
+    /* Alert/Error States */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 217 91% 60%;
+
+    /* Custom Educational Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(142 71% 55%) 100%);
+    --gradient-learning: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    
+    /* Shadows for depth */
+    --shadow-soft: 0 2px 10px hsl(var(--primary) / 0.1);
+    --shadow-medium: 0 4px 20px hsl(var(--primary) / 0.15);
+    --shadow-strong: 0 8px 30px hsl(var(--primary) / 0.2);
+    
+    /* Code Editor Theme */
+    --code-bg: 220 13% 18%;
+    --code-foreground: 220 14% 71%;
+    --code-keyword: 207 61% 59%;
+    --code-string: 99 28% 58%;
+    --code-comment: 220 10% 40%;
+    
+    /* Status Colors */
+    --online: 142 71% 45%;
+    --offline: 0 84% 60%;
+    --idle: 38 92% 50%;
 
     --radius: 0.5rem;
 
