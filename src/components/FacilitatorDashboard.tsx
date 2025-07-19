@@ -23,12 +23,23 @@ import {
   HelpCircle,
   TrendingUp,
   Clock,
-  Activity
+  Activity,
+  Save,
+  Share2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { CodeEditor } from "./CodeEditor";
+import { ChatInterface } from "./ChatInterface";
+import { ScreenShare } from "./ScreenShare";
+import { NotificationPanel } from "./NotificationPanel";
+import { ProfileModal } from "./ProfileModal";
+import { ThemeToggle } from "./ThemeToggle";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import * as React from "react";
 
 interface FacilitatorDashboardProps {
   onLogout: () => void;
+  username: string;
 }
 
 interface Student {
@@ -43,7 +54,7 @@ interface Student {
   errorCount: number;
 }
 
-export function FacilitatorDashboard({ onLogout }: FacilitatorDashboardProps) {
+export function FacilitatorDashboard({ onLogout, username }: FacilitatorDashboardProps) {
   const [students, setStudents] = useState<Student[]>([
     {
       id: 1,
@@ -111,7 +122,68 @@ export function FacilitatorDashboard({ onLogout }: FacilitatorDashboardProps) {
   ]);
 
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showThemeSettings, setShowThemeSettings] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("python");
+  const [code, setCode] = useState("");
+  const [compilationResult, setCompilationResult] = useState("");
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [notificationCount, setNotificationCount] = useState(3);
   const { toast } = useToast();
+
+  const languages = [
+    { value: "python", label: "Python 3", ext: ".py" },
+    { value: "java", label: "Java", ext: ".java" },
+    { value: "c", label: "C", ext: ".c" },
+    { value: "cpp", label: "C++", ext: ".cpp" },
+  ];
+
+  const defaultCode = {
+    python: `print("Hello from Facilitator!")`,
+    java: `public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello from Facilitator!");
+    }
+}`,
+    c: `#include <stdio.h>
+
+int main() {
+    printf("Hello from Facilitator!\\n");
+    return 0;
+}`,
+    cpp: `#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Hello from Facilitator!" << endl;
+    return 0;
+}`
+  };
+
+  // Real-time updates simulation
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      // Update student data
+      setStudents(prev => prev.map(student => ({
+        ...student,
+        progress: Math.min(100, Math.max(0, student.progress + Math.floor(Math.random() * 3) - 1)),
+        errorCount: Math.max(0, student.errorCount + Math.floor(Math.random() * 2) - 1),
+        sessionTime: updateSessionTime(student.sessionTime)
+      })));
+      
+      // Occasionally add new notifications
+      if (Math.random() > 0.8) {
+        setNotificationCount(prev => prev + 1);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  React.useEffect(() => {
+    setCode(defaultCode[selectedLanguage as keyof typeof defaultCode]);
+  }, [selectedLanguage]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -159,6 +231,52 @@ export function FacilitatorDashboard({ onLogout }: FacilitatorDashboardProps) {
     });
   };
 
+  const updateSessionTime = (currentTime: string): string => {
+    const minutes = parseInt(currentTime.replace('m', '')) + 1;
+    return `${minutes}m`;
+  };
+
+  const handleCompileAndRun = async () => {
+    toast({
+      title: "Compiling...",
+      description: `Running ${selectedLanguage} code`,
+    });
+
+    setTimeout(() => {
+      setCompilationResult(`Hello from Facilitator!
+
+Process finished with exit code 0
+Time: 0.32s
+Memory: 8.2MB`);
+      
+      toast({
+        title: "Success!",
+        description: "Code compiled and executed successfully",
+      });
+    }, 1500);
+  };
+
+  const handleSaveCode = () => {
+    toast({
+      title: "Code Saved",
+      description: "Your code has been saved successfully",
+    });
+  };
+
+  const handleScreenShare = () => {
+    toast({
+      title: "Screen Share Initiated",
+      description: "You can now view student screens",
+    });
+  };
+
+  const handleProfileUpdate = (profile: any) => {
+    toast({
+      title: "Profile Updated",
+      description: "Your profile information has been saved",
+    });
+  };
+
   const studentsNeedingHelp = students.filter(s => s.status === 'needs-help').length;
   const totalActiveStudents = students.filter(s => s.status === 'active' || s.status === 'needs-help').length;
   const averageProgress = Math.round(students.reduce((acc, s) => acc + s.progress, 0) / students.length);
@@ -193,15 +311,21 @@ export function FacilitatorDashboard({ onLogout }: FacilitatorDashboardProps) {
           </div>
 
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm">
+            <span className="text-sm font-medium text-muted-foreground">Welcome, {username}</span>
+            <Button variant="outline" size="sm" onClick={() => setShowNotifications(true)} className="relative">
               <Bell className="h-4 w-4 mr-2" />
               Notifications
+              {notificationCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {notificationCount}
+                </span>
+              )}
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => setShowProfileModal(true)}>
               <User className="h-4 w-4 mr-2" />
               Profile
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => setShowThemeSettings(true)}>
               <Settings className="h-4 w-4 mr-2" />
               Settings
             </Button>
@@ -266,10 +390,18 @@ export function FacilitatorDashboard({ onLogout }: FacilitatorDashboardProps) {
         </div>
 
         <Tabs defaultValue="students" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="students">
               <Users className="h-4 w-4 mr-2" />
               Students
+            </TabsTrigger>
+            <TabsTrigger value="code">
+              <Code className="h-4 w-4 mr-2" />
+              Code Editor
+            </TabsTrigger>
+            <TabsTrigger value="chat">
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Chat
             </TabsTrigger>
             <TabsTrigger value="alerts">
               <AlertTriangle className="h-4 w-4 mr-2" />
@@ -377,6 +509,94 @@ export function FacilitatorDashboard({ onLogout }: FacilitatorDashboardProps) {
                 </Card>
               ))}
             </div>
+          </TabsContent>
+
+          {/* Code Editor Tab */}
+          <TabsContent value="code" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Code Editor Panel */}
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                    <div>
+                      <CardTitle>Remote Code Editor</CardTitle>
+                      <CardDescription>
+                        Write and execute code remotely
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {languages.map((lang) => (
+                            <SelectItem key={lang.value} value={lang.value}>
+                              {lang.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button variant="success" size="sm" onClick={handleSaveCode}>
+                        <Save className="h-4 w-4 mr-2" />
+                        Save
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <CodeEditor
+                      value={code}
+                      onChange={setCode}
+                      language={selectedLanguage}
+                    />
+                    <div className="flex items-center justify-between mt-4">
+                      <Button variant="compile" onClick={handleCompileAndRun}>
+                        <Play className="h-4 w-4 mr-2" />
+                        Compile & Run
+                      </Button>
+                      <Button variant="outline" onClick={handleScreenShare}>
+                        <Share2 className="h-4 w-4 mr-2" />
+                        Share Screen
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Output Panel */}
+              <div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Output Console</CardTitle>
+                    <CardDescription>
+                      Compilation results and program output
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-code-bg text-code-foreground p-4 rounded-md font-mono text-sm min-h-[300px] overflow-auto">
+                      {compilationResult || "Ready to run your code..."}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Chat Tab */}
+          <TabsContent value="chat">
+            <ChatInterface 
+              messages={chatMessages}
+              onSendMessage={(message) => {
+                const newMessage = {
+                  id: Date.now(),
+                  type: 'facilitator',
+                  content: message,
+                  timestamp: new Date(),
+                  sender: 'facilitator'
+                };
+                setChatMessages(prev => [...prev, newMessage]);
+              }}
+            />
           </TabsContent>
 
           {/* Alerts Tab */}
@@ -585,6 +805,29 @@ export function FacilitatorDashboard({ onLogout }: FacilitatorDashboardProps) {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Modals */}
+      {showNotifications && (
+        <NotificationPanel onClose={() => {
+          setShowNotifications(false);
+          setNotificationCount(0);
+        }} />
+      )}
+
+      {showProfileModal && (
+        <ProfileModal
+          username={username}
+          role="facilitator"
+          onClose={() => setShowProfileModal(false)}
+          onUpdateProfile={handleProfileUpdate}
+        />
+      )}
+
+      {showThemeSettings && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <ThemeToggle onClose={() => setShowThemeSettings(false)} />
+        </div>
+      )}
     </div>
   );
 }

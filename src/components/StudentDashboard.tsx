@@ -22,18 +22,26 @@ import {
   LogOut
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeToggle } from "./ThemeToggle";
+import { ProfileModal } from "./ProfileModal";
+import * as React from "react";
 
 interface StudentDashboardProps {
   onLogout: () => void;
+  username: string;
 }
 
-export function StudentDashboard({ onLogout }: StudentDashboardProps) {
+export function StudentDashboard({ onLogout, username }: StudentDashboardProps) {
   const [selectedLanguage, setSelectedLanguage] = useState("python");
   const [code, setCode] = useState("");
   const [isOnline, setIsOnline] = useState(true);
   const [compilationResult, setCompilationResult] = useState("");
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [showThemeSettings, setShowThemeSettings] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [onlineUsersCount, setOnlineUsersCount] = useState(3);
+  const [progress, setProgress] = useState(45);
   const { toast } = useToast();
 
   const languages = [
@@ -44,31 +52,23 @@ export function StudentDashboard({ onLogout }: StudentDashboardProps) {
   ];
 
   const defaultCode = {
-    python: `# Welcome to Python Programming
-print("Hello, Smart Learning Assistant!")
-# Your code here...`,
-    java: `// Welcome to Java Programming
-public class Main {
+    python: `print("Hello, Smart Learning Assistant!")`,
+    java: `public class Main {
     public static void main(String[] args) {
         System.out.println("Hello, Smart Learning Assistant!");
-        // Your code here...
     }
 }`,
-    c: `// Welcome to C Programming
-#include <stdio.h>
+    c: `#include <stdio.h>
 
 int main() {
     printf("Hello, Smart Learning Assistant!\\n");
-    // Your code here...
     return 0;
 }`,
-    cpp: `// Welcome to C++ Programming
-#include <iostream>
+    cpp: `#include <iostream>
 using namespace std;
 
 int main() {
     cout << "Hello, Smart Learning Assistant!" << endl;
-    // Your code here...
     return 0;
 }`
   };
@@ -85,15 +85,11 @@ int main() {
 
     // Simulate compilation
     setTimeout(() => {
-      setCompilationResult(`
-✅ Compilation successful!
-Output:
-Hello, Smart Learning Assistant!
+      setCompilationResult(`Hello, Smart Learning Assistant!
 
 Process finished with exit code 0
 Time: 0.45s
-Memory: 12.5MB
-      `);
+Memory: 12.5MB`);
       
       toast({
         title: "Success!",
@@ -133,6 +129,37 @@ Memory: 12.5MB
     });
   };
 
+  const handleVoiceCall = () => {
+    toast({
+      title: "Voice Call Initiated",
+      description: "Connecting to facilitator...",
+    });
+  };
+
+  const handleVideoCall = () => {
+    toast({
+      title: "Video Call Initiated", 
+      description: "Starting video session with facilitator...",
+    });
+  };
+
+  const handleProfileUpdate = (profile: any) => {
+    toast({
+      title: "Profile Updated",
+      description: "Your profile information has been saved",
+    });
+  };
+
+  // Simulate real-time updates
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setOnlineUsersCount(prev => Math.max(1, prev + Math.floor(Math.random() * 3) - 1));
+      setProgress(prev => Math.min(100, Math.max(0, prev + Math.floor(Math.random() * 5) - 2)));
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -153,14 +180,18 @@ Memory: 12.5MB
               <div className={`w-2 h-2 rounded-full mr-2 ${isOnline ? 'bg-status-online' : 'bg-status-offline'}`} />
               {isOnline ? "Online" : "Offline"}
             </Badge>
+            <Badge variant="outline" className="ml-2">
+              {onlineUsersCount} Online Users
+            </Badge>
           </div>
 
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm">
+            <span className="text-sm font-medium text-muted-foreground">Welcome, {username}</span>
+            <Button variant="outline" size="sm" onClick={() => setShowProfileModal(true)}>
               <User className="h-4 w-4 mr-2" />
               Profile
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => setShowThemeSettings(true)}>
               <Settings className="h-4 w-4 mr-2" />
               Settings
             </Button>
@@ -280,6 +311,8 @@ Memory: 12.5MB
                   };
                   setChatMessages(prev => [...prev, newMessage]);
                 }}
+                onVoiceCall={handleVoiceCall}
+                onVideoCall={handleVideoCall}
               />
             </TabsContent>
 
@@ -294,11 +327,27 @@ Memory: 12.5MB
 
             {/* Progress Tab */}
             <TabsContent value="progress">
-              <ProgressTracker />
+              <ProgressTracker progress={progress} />
             </TabsContent>
           </Tabs>
         </div>
       </div>
+
+      {/* Modals */}
+      {showThemeSettings && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <ThemeToggle onClose={() => setShowThemeSettings(false)} />
+        </div>
+      )}
+
+      {showProfileModal && (
+        <ProfileModal
+          username={username}
+          role="student"
+          onClose={() => setShowProfileModal(false)}
+          onUpdateProfile={handleProfileUpdate}
+        />
+      )}
     </div>
   );
 }

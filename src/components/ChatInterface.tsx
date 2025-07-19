@@ -30,9 +30,11 @@ interface Message {
 interface ChatInterfaceProps {
   messages: Message[];
   onSendMessage: (message: string) => void;
+  onVoiceCall?: () => void;
+  onVideoCall?: () => void;
 }
 
-export function ChatInterface({ messages, onSendMessage }: ChatInterfaceProps) {
+export function ChatInterface({ messages, onSendMessage, onVoiceCall, onVideoCall }: ChatInterfaceProps) {
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([
@@ -111,11 +113,11 @@ export function ChatInterface({ messages, onSendMessage }: ChatInterfaceProps) {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <CardTitle>Learning Support Chat</CardTitle>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={onVoiceCall}>
                 <Phone className="h-4 w-4 mr-2" />
                 Voice Call
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={onVideoCall}>
                 <Video className="h-4 w-4 mr-2" />
                 Video Call
               </Button>

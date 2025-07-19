@@ -19,11 +19,15 @@ import {
   Activity
 } from "lucide-react";
 
-export function ProgressTracker() {
+interface ProgressTrackerProps {
+  progress?: number;
+}
+
+export function ProgressTracker({ progress = 78 }: ProgressTrackerProps) {
   const [timeRange, setTimeRange] = useState("week");
 
   const progressData = {
-    overall: 78,
+    overall: progress,
     languages: {
       python: { completed: 85, total: 100, errors: 12 },
       java: { completed: 60, total: 80, errors: 18 },

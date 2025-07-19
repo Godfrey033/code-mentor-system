@@ -1,19 +1,77 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { GraduationCap, Users, Monitor, BookOpen } from "lucide-react";
 
 interface RoleSelectionProps {
-  onRoleSelect: (role: 'student' | 'facilitator') => void;
+  onRoleSelect: (role: 'student' | 'facilitator', username: string) => void;
 }
 
 export function RoleSelection({ onRoleSelect }: RoleSelectionProps) {
   const [selectedRole, setSelectedRole] = useState<'student' | 'facilitator' | null>(null);
+  const [username, setUsername] = useState("");
+  const [showUsernameInput, setShowUsernameInput] = useState(false);
 
-  const handleRoleSelect = (role: 'student' | 'facilitator') => {
+  const handleRoleClick = (role: 'student' | 'facilitator') => {
     setSelectedRole(role);
-    setTimeout(() => onRoleSelect(role), 300);
+    setShowUsernameInput(true);
   };
+
+  const handleProceed = () => {
+    if (username.trim() && selectedRole) {
+      onRoleSelect(selectedRole, username.trim());
+    }
+  };
+
+  const handleBack = () => {
+    setShowUsernameInput(false);
+    setSelectedRole(null);
+    setUsername("");
+  };
+
+  if (showUsernameInput) {
+    return (
+      <div className="min-h-screen bg-gradient-learning flex items-center justify-center p-6">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">
+              {selectedRole === 'student' ? 'Student' : 'Facilitator'} Login
+            </CardTitle>
+            <CardDescription>
+              Enter your username to continue
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username"
+                className="mt-2"
+                onKeyPress={(e) => e.key === 'Enter' && handleProceed()}
+              />
+            </div>
+            <div className="flex space-x-2">
+              <Button variant="outline" onClick={handleBack} className="flex-1">
+                Back
+              </Button>
+              <Button 
+                onClick={handleProceed} 
+                disabled={!username.trim()}
+                className="flex-1"
+              >
+                Continue
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-learning flex items-center justify-center p-6">
@@ -42,7 +100,7 @@ export function RoleSelection({ onRoleSelect }: RoleSelectionProps) {
             className={`cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-strong ${
               selectedRole === 'student' ? 'ring-4 ring-white scale-105' : ''
             }`}
-            onClick={() => handleRoleSelect('student')}
+            onClick={() => handleRoleClick('student')}
           >
             <CardHeader className="text-center pb-4">
               <div className="mx-auto bg-gradient-primary rounded-full p-6 w-20 h-20 flex items-center justify-center mb-4">
@@ -77,7 +135,7 @@ export function RoleSelection({ onRoleSelect }: RoleSelectionProps) {
             className={`cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-strong ${
               selectedRole === 'facilitator' ? 'ring-4 ring-white scale-105' : ''
             }`}
-            onClick={() => handleRoleSelect('facilitator')}
+            onClick={() => handleRoleClick('facilitator')}
           >
             <CardHeader className="text-center pb-4">
               <div className="mx-auto bg-gradient-secondary rounded-full p-6 w-20 h-20 flex items-center justify-center mb-4">
