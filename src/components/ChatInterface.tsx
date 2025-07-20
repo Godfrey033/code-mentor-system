@@ -32,9 +32,11 @@ interface ChatInterfaceProps {
   onSendMessage: (message: string) => void;
   onVoiceCall?: () => void;
   onVideoCall?: () => void;
+  role?: 'student' | 'facilitator';
+  onScreenShare?: () => void;
 }
 
-export function ChatInterface({ messages, onSendMessage, onVoiceCall, onVideoCall }: ChatInterfaceProps) {
+export function ChatInterface({ messages, onSendMessage, onVoiceCall, onVideoCall, role = 'student', onScreenShare }: ChatInterfaceProps) {
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([
@@ -57,18 +59,6 @@ export function ChatInterface({ messages, onSendMessage, onVoiceCall, onVideoCal
     if (inputMessage.trim()) {
       onSendMessage(inputMessage);
       setInputMessage("");
-      
-      // Simulate facilitator response
-      setTimeout(() => {
-        const responses = [
-          "I see you're working on that problem. Let me help you debug that code.",
-          "Great progress! Try adding a null check before accessing that variable.",
-          "That's a common error. Let me share my screen to show you the solution.",
-          "Good question! The issue is with your loop condition.",
-        ];
-        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-        // This would be handled by the parent component in a real implementation
-      }, 2000);
     }
   };
 
@@ -113,11 +103,17 @@ export function ChatInterface({ messages, onSendMessage, onVoiceCall, onVideoCal
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <CardTitle>Learning Support Chat</CardTitle>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" onClick={onVoiceCall}>
+              <Button variant="outline" size="sm" onClick={() => {
+                if (onVoiceCall) onVoiceCall();
+                if (onScreenShare) onScreenShare();
+              }}>
                 <Phone className="h-4 w-4 mr-2" />
                 Voice Call
               </Button>
-              <Button variant="outline" size="sm" onClick={onVideoCall}>
+              <Button variant="outline" size="sm" onClick={() => {
+                if (onVideoCall) onVideoCall();
+                if (onScreenShare) onScreenShare();
+              }}>
                 <Video className="h-4 w-4 mr-2" />
                 Video Call
               </Button>

@@ -130,6 +130,8 @@ export function FacilitatorDashboard({ onLogout, username }: FacilitatorDashboar
   const [compilationResult, setCompilationResult] = useState("");
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [notificationCount, setNotificationCount] = useState(3);
+  const [activeTab, setActiveTab] = useState("students");
+  const [globalMessages, setGlobalMessages] = useState<any[]>([]);
   const { toast } = useToast();
 
   const languages = [
@@ -207,9 +209,19 @@ int main() {
 
   const handleAssistStudent = (student: Student) => {
     setSelectedStudent(student);
+    const assistMessage = {
+      id: Date.now(),
+      type: 'system',
+      content: `Facilitator is providing assistance to ${student.name}`,
+      timestamp: new Date(),
+      sender: 'facilitator'
+    };
+    setGlobalMessages(prev => [...prev, assistMessage]);
+    setNotificationCount(prev => prev + 1);
+    
     toast({
-      title: "Connecting to Student",
-      description: `Initiating assistance session with ${student.name}`,
+      title: "Assistance Notification Sent",
+      description: `${student.name} has been notified that help is on the way`,
     });
   };
 
@@ -218,16 +230,26 @@ int main() {
   };
 
   const handleViewScreen = (student: Student) => {
+    setSelectedStudent(student);
+    setActiveTab("monitoring");
     toast({
-      title: "Screen View Requested",
-      description: `Requesting screen access from ${student.name}`,
+      title: "Viewing Student Problem",
+      description: `Now viewing ${student.name}'s current challenges and code issues`,
     });
   };
 
   const handleRemoteCode = (student: Student) => {
+    setSelectedStudent(student);
+    setActiveTab("code");
+    setCode(`// Accessing ${student.name}'s code
+print("Hello from ${student.name}'s workspace!")
+# Student is working on loops
+for i in range(5):
+    print(f"Iteration {i}")
+`);
     toast({
       title: "Remote Code Access",
-      description: `Accessing ${student.name}'s code editor`,
+      description: `Now editing ${student.name}'s code remotely`,
     });
   };
 
@@ -389,7 +411,7 @@ Memory: 8.2MB`);
           </Card>
         </div>
 
-        <Tabs defaultValue="students" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="students">
               <Users className="h-4 w-4 mr-2" />
@@ -482,7 +504,10 @@ Memory: 8.2MB`);
                         <Button 
                           size="sm" 
                           variant="default"
-                          onClick={() => handleAssistStudent(student)}
+                          onClick={() => {
+                            handleAssistStudent(student);
+                            setActiveTab("chat");
+                          }}
                         >
                           <MessageCircle className="h-4 w-4 mr-1" />
                           Chat
@@ -585,7 +610,7 @@ Memory: 8.2MB`);
           {/* Chat Tab */}
           <TabsContent value="chat">
             <ChatInterface 
-              messages={chatMessages}
+              messages={globalMessages}
               onSendMessage={(message) => {
                 const newMessage = {
                   id: Date.now(),
@@ -594,8 +619,10 @@ Memory: 8.2MB`);
                   timestamp: new Date(),
                   sender: 'facilitator'
                 };
-                setChatMessages(prev => [...prev, newMessage]);
+                setGlobalMessages(prev => [...prev, newMessage]);
               }}
+              role="facilitator"
+              onScreenShare={handleScreenShare}
             />
           </TabsContent>
 
@@ -642,7 +669,14 @@ Memory: 8.2MB`);
                               </p>
                             </div>
                             <div className="flex space-x-2 ml-4">
-                              <Button size="sm" variant="default">
+                              <Button 
+                                size="sm" 
+                                variant="default"
+                                onClick={() => {
+                                  const student = students.find(s => s.name === alert.studentName);
+                                  if (student) handleAssistStudent(student);
+                                }}
+                              >
                                 Assist
                               </Button>
                               <Button 

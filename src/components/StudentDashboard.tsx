@@ -85,7 +85,11 @@ int main() {
 
     // Simulate compilation
     setTimeout(() => {
-      setCompilationResult(`Hello, Smart Learning Assistant!
+      const output = code.includes('print(') ? 
+        code.split('print(')[1]?.split(')')[0]?.replace(/"/g, '').replace(/'/g, '') || 'Hello, Smart Learning Assistant!' :
+        'Hello, Smart Learning Assistant!';
+      
+      setCompilationResult(`${output}
 
 Process finished with exit code 0
 Time: 0.45s
@@ -310,9 +314,29 @@ Memory: 12.5MB`);
                     sender: 'student'
                   };
                   setChatMessages(prev => [...prev, newMessage]);
+                  
+                  // Simulate facilitator response
+                  setTimeout(() => {
+                    const responses = [
+                      "I see you're working on that problem. Let me help you debug that code.",
+                      "Great progress! Try adding a null check before accessing that variable.", 
+                      "That's a common error. Let me share my screen to show you the solution.",
+                      "Good question! The issue is with your loop condition."
+                    ];
+                    const facilitatorResponse = {
+                      id: Date.now() + 1,
+                      type: 'facilitator',
+                      content: responses[Math.floor(Math.random() * responses.length)],
+                      timestamp: new Date(),
+                      sender: 'facilitator'
+                    };
+                    setChatMessages(prev => [...prev, facilitatorResponse]);
+                  }, 2000);
                 }}
                 onVoiceCall={handleVoiceCall}
                 onVideoCall={handleVideoCall}
+                role="student"
+                onScreenShare={handleScreenShare}
               />
             </TabsContent>
 
