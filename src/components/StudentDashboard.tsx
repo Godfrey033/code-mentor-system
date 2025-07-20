@@ -42,6 +42,7 @@ export function StudentDashboard({ onLogout, username }: StudentDashboardProps) 
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [onlineUsersCount, setOnlineUsersCount] = useState(3);
   const [progress, setProgress] = useState(45);
+  const [showScreenShare, setShowScreenShare] = useState(false);
   const { toast } = useToast();
 
   const languages = [
@@ -304,39 +305,12 @@ Memory: 12.5MB`);
             {/* Chat Tab */}
             <TabsContent value="chat">
               <ChatInterface 
-                messages={chatMessages}
-                onSendMessage={(message) => {
-                  const newMessage = {
-                    id: Date.now(),
-                    type: 'student',
-                    content: message,
-                    timestamp: new Date(),
-                    sender: 'student'
-                  };
-                  setChatMessages(prev => [...prev, newMessage]);
-                  
-                  // Simulate facilitator response
-                  setTimeout(() => {
-                    const responses = [
-                      "I see you're working on that problem. Let me help you debug that code.",
-                      "Great progress! Try adding a null check before accessing that variable.", 
-                      "That's a common error. Let me share my screen to show you the solution.",
-                      "Good question! The issue is with your loop condition."
-                    ];
-                    const facilitatorResponse = {
-                      id: Date.now() + 1,
-                      type: 'facilitator',
-                      content: responses[Math.floor(Math.random() * responses.length)],
-                      timestamp: new Date(),
-                      sender: 'facilitator'
-                    };
-                    setChatMessages(prev => [...prev, facilitatorResponse]);
-                  }, 2000);
-                }}
-                onVoiceCall={handleVoiceCall}
-                onVideoCall={handleVideoCall}
+                onVoiceCall={() => setShowScreenShare(true)}
+                onVideoCall={() => setShowScreenShare(true)}
                 role="student"
-                onScreenShare={handleScreenShare}
+                onScreenShare={() => setShowScreenShare(true)}
+                userId={username}
+                roomId="default-room"
               />
             </TabsContent>
 

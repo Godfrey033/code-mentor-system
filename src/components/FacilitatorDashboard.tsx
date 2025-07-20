@@ -132,6 +132,7 @@ export function FacilitatorDashboard({ onLogout, username }: FacilitatorDashboar
   const [notificationCount, setNotificationCount] = useState(3);
   const [activeTab, setActiveTab] = useState("students");
   const [globalMessages, setGlobalMessages] = useState<any[]>([]);
+  const [showScreenShare, setShowScreenShare] = useState(false);
   const { toast } = useToast();
 
   const languages = [
@@ -610,19 +611,12 @@ Memory: 8.2MB`);
           {/* Chat Tab */}
           <TabsContent value="chat">
             <ChatInterface 
-              messages={globalMessages}
-              onSendMessage={(message) => {
-                const newMessage = {
-                  id: Date.now(),
-                  type: 'facilitator',
-                  content: message,
-                  timestamp: new Date(),
-                  sender: 'facilitator'
-                };
-                setGlobalMessages(prev => [...prev, newMessage]);
-              }}
+              onVoiceCall={() => setShowScreenShare(true)}
+              onVideoCall={() => setShowScreenShare(true)}
               role="facilitator"
-              onScreenShare={handleScreenShare}
+              onScreenShare={() => setShowScreenShare(true)}
+              userId={username}
+              roomId="default-room"
             />
           </TabsContent>
 

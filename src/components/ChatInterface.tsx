@@ -18,6 +18,7 @@ import {
   Users
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useFirebaseChat } from "@/hooks/useFirebaseChat";
 
 interface Message {
   id: number;
@@ -28,15 +29,15 @@ interface Message {
 }
 
 interface ChatInterfaceProps {
-  messages: Message[];
-  onSendMessage: (message: string) => void;
   onVoiceCall?: () => void;
   onVideoCall?: () => void;
   role?: 'student' | 'facilitator';
   onScreenShare?: () => void;
+  userId: string;
+  roomId?: string;
 }
 
-export function ChatInterface({ messages, onSendMessage, onVoiceCall, onVideoCall, role = 'student', onScreenShare }: ChatInterfaceProps) {
+export function ChatInterface({ onVoiceCall, onVideoCall, role = 'student', onScreenShare, userId, roomId = 'default-room' }: ChatInterfaceProps) {
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([
@@ -46,6 +47,7 @@ export function ChatInterface({ messages, onSendMessage, onVoiceCall, onVideoCal
   ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { messages, sendMessage } = useFirebaseChat(roomId, userId, role);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -55,9 +57,9 @@ export function ChatInterface({ messages, onSendMessage, onVoiceCall, onVideoCal
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (inputMessage.trim()) {
-      onSendMessage(inputMessage);
+      await sendMessage(inputMessage);
       setInputMessage("");
     }
   };
@@ -157,7 +159,7 @@ export function ChatInterface({ messages, onSendMessage, onVoiceCall, onVideoCal
                             <span className="ml-1 capitalize">{message.sender}</span>
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            {message.timestamp.toLocaleTimeString()}
+                            {new Date(message.timestamp).toLocaleTimeString()}
                           </span>
                         </div>
                         
@@ -253,8 +255,8 @@ export function ChatInterface({ messages, onSendMessage, onVoiceCall, onVideoCal
               variant="warning" 
               size="sm" 
               className="w-full"
-              onClick={() => {
-                onSendMessage("🚨 I need immediate help with my code!");
+              onClick={async () => {
+                await sendMessage("🚨 I need immediate help with my code!", "help-request");
                 toast({
                   title: "Emergency Help Requested",
                   description: "A facilitator will assist you immediately",
