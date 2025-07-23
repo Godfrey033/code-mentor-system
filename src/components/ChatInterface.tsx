@@ -140,7 +140,7 @@ export function ChatInterface({ onVoiceCall, onVideoCall, role = 'student', onSc
                     <div
                       key={message.id}
                       className={`flex items-start space-x-3 ${
-                        message.sender === 'student' ? 'flex-row-reverse space-x-reverse' : ''
+                        message.sender === role ? 'flex-row-reverse space-x-reverse' : ''
                       }`}
                     >
                       <Avatar className="h-8 w-8">
@@ -151,7 +151,7 @@ export function ChatInterface({ onVoiceCall, onVideoCall, role = 'student', onSc
                       </Avatar>
                       
                       <div className={`flex-1 max-w-[80%] ${
-                        message.sender === 'student' ? 'text-right' : ''
+                        message.sender === role ? 'text-right' : ''
                       }`}>
                         <div className="flex items-center space-x-2 mb-1">
                           <Badge className={`text-xs ${getMessageBadgeColor(message.type)}`}>
@@ -164,7 +164,7 @@ export function ChatInterface({ onVoiceCall, onVideoCall, role = 'student', onSc
                         </div>
                         
                         <div className={`p-3 rounded-lg ${
-                          message.sender === 'student' 
+                          message.sender === role 
                             ? 'bg-primary text-primary-foreground' 
                             : message.type === 'help-request'
                             ? 'bg-warning/10 border border-warning'

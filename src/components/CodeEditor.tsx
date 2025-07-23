@@ -95,6 +95,13 @@ export function CodeEditor({ value, onChange, language, onRun }: CodeEditorProps
             result = `Code compiled and executed successfully (${language.toUpperCase()})`;
           }
           break;
+        case 'html':
+          if (currentCode.includes('<h1>') || currentCode.includes('<p>') || currentCode.includes('<div>')) {
+            result = "HTML rendered successfully!\nCheck the preview to see your webpage.";
+          } else {
+            result = "HTML code processed successfully";
+          }
+          break;
         default:
           result = `Code executed successfully (${language})`;
       }
@@ -109,6 +116,7 @@ export function CodeEditor({ value, onChange, language, onRun }: CodeEditorProps
       case 'java': return 'bg-orange-100 text-orange-800';
       case 'c': return 'bg-gray-100 text-gray-800';
       case 'cpp': return 'bg-purple-100 text-purple-800';
+      case 'html': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -118,8 +126,8 @@ export function CodeEditor({ value, onChange, language, onRun }: CodeEditorProps
   };
 
   const handleDownloadCode = () => {
-    const extensions = { python: '.py', java: '.java', c: '.c', cpp: '.cpp' };
-    const filename = `code${extensions[language as keyof typeof extensions]}`;
+    const extensions = { python: '.py', java: '.java', c: '.c', cpp: '.cpp', html: '.html' };
+    const filename = `code${extensions[language as keyof typeof extensions] || '.txt'}`;
     const blob = new Blob([value], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -172,7 +180,7 @@ export function CodeEditor({ value, onChange, language, onRun }: CodeEditorProps
             <input
               type="file"
               className="hidden"
-              accept=".py,.java,.c,.cpp,.txt"
+              accept=".py,.java,.c,.cpp,.html,.txt"
               onChange={handleFileUpload}
             />
           </label>

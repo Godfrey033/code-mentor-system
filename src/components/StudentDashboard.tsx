@@ -32,7 +32,7 @@ interface StudentDashboardProps {
 }
 
 export function StudentDashboard({ onLogout, username }: StudentDashboardProps) {
-  const [selectedLanguage, setSelectedLanguage] = useState("python");
+  const [selectedLanguage, setSelectedLanguage] = useState("html");
   const [code, setCode] = useState("");
   const [isOnline, setIsOnline] = useState(true);
   const [compilationResult, setCompilationResult] = useState("");
@@ -46,6 +46,7 @@ export function StudentDashboard({ onLogout, username }: StudentDashboardProps) 
   const { toast } = useToast();
 
   const languages = [
+    { value: "html", label: "HTML", ext: ".html" },
     { value: "python", label: "Python 3", ext: ".py" },
     { value: "java", label: "Java", ext: ".java" },
     { value: "c", label: "C", ext: ".c" },
@@ -53,6 +54,18 @@ export function StudentDashboard({ onLogout, username }: StudentDashboardProps) 
   ];
 
   const defaultCode = {
+    html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Learning Assistant</title>
+</head>
+<body>
+    <h1>Hello, Smart Learning Assistant!</h1>
+    <p>Welcome to your HTML playground!</p>
+</body>
+</html>`,
     python: `print("Hello, Smart Learning Assistant!")`,
     java: `public class Main {
     public static void main(String[] args) {
