@@ -18,7 +18,7 @@ import {
   Users
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useFirebaseChat } from "@/hooks/useFirebaseChat";
+import { useWebSocketChat } from "@/hooks/useWebSocketChat";
 
 interface Message {
   id: number;
@@ -47,7 +47,7 @@ export function ChatInterface({ onVoiceCall, onVideoCall, role = 'student', onSc
   ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  const { messages, sendMessage } = useFirebaseChat(roomId, userId, role);
+  const { messages, sendMessage, isConnected } = useWebSocketChat(roomId, userId, role);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -103,7 +103,10 @@ export function ChatInterface({ onVoiceCall, onVideoCall, role = 'student', onSc
       <div className="lg:col-span-3">
         <Card className="h-[600px] flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle>Learning Support Chat</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Learning Support Chat
+              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-status-online' : 'bg-status-offline'}`} />
+            </CardTitle>
             <div className="flex items-center space-x-2">
               <Button variant="outline" size="sm" onClick={() => {
                 if (onVoiceCall) onVoiceCall();
